@@ -54,7 +54,10 @@ namespace com.webjema.PanelsMonster
             this.panels.ForEach(p => p.OnStart());
             if (this.disablePanelsOnStart)
             {
-                this.background.SetActive(false);
+                if (this.background != null)
+                {
+                    this.background.SetActive(false);
+                }
                 this.panelsGameObjects.ForEach(g => g.SetActive(false));
             }
         } // Init
