@@ -25,11 +25,15 @@ namespace com.webjema.PanelsMonster
 
         public GameObject background;
 
+        private List<Panel> _openPanels;
+
         public void Init()
         {
 #if PANELS_DEBUG_ON
             Debug.Log(string.Format("[PanelsHolder][Init] '{0}'", this.gameObject.name));
 #endif
+            this._openPanels = new List<Panel>();
+
             if (this.panels == null)
             {
                 this.panels = new List<Panel>();
@@ -84,6 +88,14 @@ namespace com.webjema.PanelsMonster
 
         public void OnPanelShow(Panel panel)
         {
+            if (!panel.enableBackground)
+            {
+                return;
+            }
+            if (!this._openPanels.Contains(panel))
+            {
+                this._openPanels.Add(panel);
+            }
             if (this.background == null)
             {
                 return;
@@ -92,8 +104,39 @@ namespace com.webjema.PanelsMonster
             this.background.SetActive(true);
         }
 
+        public void OnPanelClose(Panel panel)
+        {
+            if (!panel.enableBackground)
+            {
+                return;
+            }
+            if (this._openPanels.Contains(panel))
+            {
+                this._openPanels.Remove(panel);
+            }
+            if (this.background == null)
+            {
+                return;
+            }
+            Panel anotherOpenPanel = this.GetOpenPanel();
+            if (anotherOpenPanel != null)
+            {
+                this.MoveBackgroundToPanel(anotherOpenPanel, toBack: true);
+                this.background.SetActive(true);
+            } else
+            {
+                this.background.SetActive(false);
+            }
+        }
 
-
+        private Panel GetOpenPanel()
+        {
+            if (this._openPanels.Count > 0)
+            {
+                return this._openPanels.Last();
+            }
+            return null;
+        }
 
 
         private Panel InitPanelObject(GameObject go)
@@ -141,9 +184,10 @@ namespace com.webjema.PanelsMonster
         } // ScanResources
 
 
-        private void MoveBackgroundToPanel(Panel panel)
+        private void MoveBackgroundToPanel(Panel panel, bool toBack = false)
         {
-            this.background.transform.SetSiblingIndex(panel.transform.GetSiblingIndex() - 1);
+            int correction = toBack ? 0 : -1;
+            this.background.transform.SetSiblingIndex(Mathf.Max(panel.transform.GetSiblingIndex() + correction, 0));
         }
 
     } // PanelsHolder

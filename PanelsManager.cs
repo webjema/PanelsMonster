@@ -72,7 +72,22 @@ namespace com.webjema.PanelsMonster
             } else
             {
 #if PANELS_DEBUG_ON
-                Debug.LogWarning(string.Format("[PanelsManager][GetPanel] No holder for panel '{0}' is found", name));
+                Debug.LogWarning(string.Format("[PanelsManager][Show] No holder for panel '{0}' is found", name));
+#endif
+            }
+        }
+
+        public void Close(Panel panel)
+        {
+            panel.gameObject.SetActive(false);
+            if (panel.panelsHolder != null)
+            {
+                panel.panelsHolder.OnPanelClose(panel);
+            }
+            else
+            {
+#if PANELS_DEBUG_ON
+                Debug.LogWarning(string.Format("[PanelsManager][Close] No holder for panel '{0}' is found", name));
 #endif
             }
         }

@@ -9,7 +9,8 @@ public enum PanelName
     LoadingPanel,
     WelcomePanel,
     BonusPanel,
-    InfoPanel
+    InfoPanel,
+    SmallInfoPanel,
 }
 
 public enum PanelPropertyName
@@ -23,6 +24,7 @@ public enum PanelPropertyName
 
 public enum PanelActionName
 {
+    none,
     close,
     button1click,
     button2click,
@@ -33,9 +35,13 @@ public enum ScreensName
 {
     None,
 
-    LobbyScreenScene,
-    SplashScreenScene,
-
     Background1,
     Background2,
+
+    SplashScreenScene,
+    LobbyScreenScene,
+    GameMenuScreenScene,
+
+
+    
 }
