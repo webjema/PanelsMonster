@@ -21,6 +21,21 @@ namespace com.webjema.PanelsMonster
             set { _Instance = value; }
         }
 
+        public Option<IScreenArguments> CurrentScreenArguments
+        {
+            get
+            {
+                if (this._argumentsStack == null || this._argumentsStack.Count == 0)
+                    throw new Exception("[ScreensManager][CurrentScreenArguments Get] argumentsStack is not inited yet");
+                return this._argumentsStack[this._argumentsStack.Count - 1].Arguments;
+            }
+            set
+            {
+                if (this._argumentsStack == null || this._argumentsStack.Count == 0)
+                    throw new Exception("[ScreensManager][CurrentScreenArguments Set] argumentsStack is not inited yet");
+                this._argumentsStack[this._argumentsStack.Count - 1].Arguments = value;
+            }
+        }
 
         private ScreensSettings _screensSettings;
         private ScreensSettings ScreensSettings
@@ -37,31 +52,50 @@ namespace com.webjema.PanelsMonster
 
         private ScreensName _currentBackgroundScene;
         private UIScreenManager _currentScreen;
-        private List<ArgumentsStackItem> _argumentsStack = new List<ArgumentsStackItem>();
+        private List<ArgumentsStackItem<IScreenArguments>> _argumentsStack = new List<ArgumentsStackItem<IScreenArguments>>();
 
         public void PushScreen(ScreensName screenName)
         {
-            this.PushScreen(screenName.ToString(), new Hashtable());
+            this.PushScreen(screenName.ToString(), Option<IScreenArguments>.None);
         }
 
-        public void PushScreen(ScreensName screenName, Hashtable args)
+        public void PushScreen(ScreensName screenName, Option<IScreenArguments> args)// where T : IScreenArguments
         {
             this.PushScreen(screenName.ToString(), args);
         }
 
         public void PushScreen(string screenName)
         {
-            this.PushScreen(screenName, new Hashtable());
+            this.PushScreen(screenName, Option<IScreenArguments>.None);
         }
 
-        public void PushScreen(string screenName, Hashtable args)
+        public void PushScreen(string screenName, Option<IScreenArguments> args)// where T : IScreenArguments
         {
-            this.PushArgumentsInStack(new ArgumentsStackItem(screenName, args));
+            this.PushArgumentsInStack(new ArgumentsStackItem<IScreenArguments>(screenName, args));
 
             this.LoadScreen(screenName);
         }
 
-        public Hashtable ScreenAwake(UIScreenManager screen, Hashtable defaultArgs = null)
+        public void PopScreen(bool resetArgs = false)
+        {
+            if (this._argumentsStack.Count < 2)
+            {
+#if PANELS_DEBUG_ON
+                Debug.LogError("[PopScreen] nothing to pop from screens stack");
+#endif                
+                return;
+            }
+            this._argumentsStack.RemoveAt(this._argumentsStack.Count - 1);
+            ArgumentsStackItem<IScreenArguments> args = this._argumentsStack[this._argumentsStack.Count - 1];
+            this._argumentsStack.RemoveAt(this._argumentsStack.Count - 1);
+            if (resetArgs)
+            {
+                args.Arguments = Option<IScreenArguments>.None;
+            }
+            this.PushScreen(args.ScreenName, args.Arguments);
+        }
+
+        public void ScreenAwake(UIScreenManager screen, Option<IScreenArguments> defaultArgs)
         {
             this._currentScreen = screen;
 #if PANELS_DEBUG_ON
@@ -79,13 +113,19 @@ namespace com.webjema.PanelsMonster
             }
             if (screen.backgroundScreen != ScreensName.None)
             {
+                Debug.LogWarning("this._currentBackgroundScene = " + this._currentBackgroundScene + " | screen.backgroundScreen = " + screen.backgroundScreen);
                 if (this._currentBackgroundScene != ScreensName.None && this._currentBackgroundScene != screen.backgroundScreen)
                 {
+                    // remove old background
                     SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(this._currentBackgroundScene.ToString()));
                     this._currentBackgroundScene = ScreensName.None;
                 }
-                SceneManager.LoadSceneAsync(screen.backgroundScreen.ToString(), LoadSceneMode.Additive);
-                this._currentBackgroundScene = screen.backgroundScreen;
+                if (screen.backgroundScreen != ScreensName.None && screen.backgroundScreen != this._currentBackgroundScene)
+                {
+                    // create new background
+                    SceneManager.LoadSceneAsync(screen.backgroundScreen.ToString(), LoadSceneMode.Additive);
+                    this._currentBackgroundScene = screen.backgroundScreen;
+                }
             }
 
             // fade in
@@ -97,10 +137,12 @@ namespace com.webjema.PanelsMonster
 
             if (this._argumentsStack.Count == 0)
             {
-                this.PushArgumentsInStack(new ArgumentsStackItem(screen.gameObject.scene.name, new Hashtable()));
+                this.PushArgumentsInStack(new ArgumentsStackItem<IScreenArguments>(screen.gameObject.scene.name, defaultArgs));
             }
-
-            return this._argumentsStack[this._argumentsStack.Count() - 1].args;
+            if (this.CurrentScreenArguments.IsNone && defaultArgs.IsSome)
+            {
+                this.CurrentScreenArguments = defaultArgs;
+            }
         } // ScreenAwake
 
         private void Init()
@@ -118,9 +160,9 @@ namespace com.webjema.PanelsMonster
             }
         } // Init
 
-        private void PushArgumentsInStack(ArgumentsStackItem screen)
+        private void PushArgumentsInStack(ArgumentsStackItem<IScreenArguments> arguments)
         {
-            _argumentsStack.Add(screen);
+            _argumentsStack.Add(arguments);
         }
 
         private void LoadScreen(string screenName)
@@ -201,16 +243,4 @@ namespace com.webjema.PanelsMonster
         } // DisableEvents
 
     } // ScreensManager
-
-    class ArgumentsStackItem
-    {
-        public string screenName;
-        public Hashtable args;
-
-        public ArgumentsStackItem(string screenName, Hashtable arg)
-        {
-            this.screenName = screenName;
-            this.args = arg;
-        }
-    } // ArgumentsStackItem
 }

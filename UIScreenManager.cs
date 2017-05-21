@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using com.webjema.Functional;
+using com.webjema.PanelsMonster;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,8 +15,6 @@ namespace com.webjema.PanelsMonster
         public float fadeOutTime = -1;
 
         public ScreensName backgroundScreen = ScreensName.None;
-
-        private Hashtable _screenArguments;
 
         void Awake()
         {
@@ -38,54 +38,18 @@ namespace com.webjema.PanelsMonster
             {
                 this.uiCamera.clearFlags = CameraClearFlags.Nothing;
             }
-            _screenArguments = ScreensManager.Instance.ScreenAwake(this, this.DefaultArgs());
+            ScreensManager.Instance.ScreenAwake(this, this.DefaultArgs());
         }
 
-        public virtual Hashtable DefaultArgs()
+        public virtual void Back()
         {
-            return new Hashtable();
+            ScreensManager.Instance.PopScreen();
         }
 
-        public string GetStringArg(string arg, string def = "")
+        public virtual Option<IScreenArguments> DefaultArgs()
         {
-            object v = this.Args[arg];
-            return v == null ? def : v.ToString();
+            return Option<IScreenArguments>.None;
         }
-
-        public int GetIntArg(string arg)
-        {
-            return this.GetIntArgD(arg, 0);
-        }
-
-        public int GetIntArgD(string arg, int def)
-        {
-            object v = this.Args[arg];
-            int result;
-            if (v != null && int.TryParse(v.ToString(), out result))
-                return result;
-
-            return v == null ? def : (int)v;
-        }
-
-        public bool GetBoolArg(string arg)
-        {
-            object v = this.Args[arg];
-            return v == null ? false : (bool)v;
-        }
-
-        public Hashtable Args
-        {
-            get
-            {
-                return _screenArguments;
-            }
-        }
-
-        public void ResetArgs(Hashtable args)
-        {
-            _screenArguments = args;
-        }
-
 
     } // UIScreenManager
 }
