@@ -65,6 +65,7 @@ namespace com.webjema.PanelsMonster
 
         public void Show(Panel panel)
         {
+            panel.InitPanel();
             panel.gameObject.SetActive(true);
             if (panel.panelsHolder != null)
             {

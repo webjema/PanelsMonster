@@ -12,6 +12,7 @@ namespace com.webjema.PanelsMonster
         public UnityEvent<Panel> onInit;
         public bool disableOnStart = true;
         public bool enableBackground = true;
+        public bool closeOnBackgroundClick = true;
 
         public PanelsHolder panelsHolder;
         public List<PanelProperty> panelProperties;
@@ -20,7 +21,8 @@ namespace com.webjema.PanelsMonster
 
         public virtual void InitPanel()
         {
-            this.onInit.Invoke(this);
+            if (this.onInit != null)
+                this.onInit.Invoke(this);
         } // InitPanel
 
         public void OnStart()
@@ -79,6 +81,17 @@ namespace com.webjema.PanelsMonster
             pp.ApplyData(data, propertyType);
             return this;
         } // SetProperty
+
+        public Panel SetNullProperty(PanelPropertyName propertyName)
+        {
+            PanelProperty pp = this.panelProperties.FirstOrDefault(p => p.propertyName == propertyName);
+            if (pp == null)
+            {
+                pp = this.AddProperty(propertyName, PanelPropertyType.none, null);
+            }
+            pp.ApplyData(null, PanelPropertyType.none);
+            return this;
+        } // SetNullProperty
 
         public Panel SetAction(PanelActionName actionName, Action act)
         {

@@ -41,6 +41,10 @@ public enum ScreensName
     SplashScreenScene,
     LobbyScreenScene,
     GameMenuScreenScene,
-    GameBoardScreenScene
-        
+    GameBoardScreenScene,
+
+    LoginScreenScene,
+    ProfileScreenScene,
+    SettingsScreenScene,
+
 }

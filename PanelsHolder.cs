@@ -110,15 +110,18 @@ namespace com.webjema.PanelsMonster
             {
                 return;
             }
+            //Debug.Log("[OnPanelClose] 1 | this._openPanels.Count = " + this._openPanels.Count);
             if (this._openPanels.Contains(panel))
             {
                 this._openPanels.Remove(panel);
             }
+            //Debug.Log("[OnPanelClose] 2 | this._openPanels.Count = " + this._openPanels.Count);
             if (this.background == null)
             {
                 return;
             }
             Panel anotherOpenPanel = this.GetOpenPanel();
+            //Debug.Log("[OnPanelClose] anotherOpenPanel = " + anotherOpenPanel);
             if (anotherOpenPanel != null)
             {
                 this.MoveBackgroundToPanel(anotherOpenPanel, toBack: true);
@@ -129,8 +132,30 @@ namespace com.webjema.PanelsMonster
             }
         }
 
+        public void BackgroundClick()
+        {
+            if (this.background == null)
+            {
+                return;
+            }
+
+            Panel panel = this._openPanels.LastOrDefault();
+            if (panel == null)
+            {
+                return;
+            }
+
+            if (!panel.enableBackground || !panel.closeOnBackgroundClick)
+            {
+                return;
+            }
+
+            panel.Close();
+        }
+
         private Panel GetOpenPanel()
         {
+            Debug.Log("[GetOpenPanel] this._openPanels.Count = " + this._openPanels.Count);
             if (this._openPanels.Count > 0)
             {
                 return this._openPanels.Last();
@@ -153,6 +178,7 @@ namespace com.webjema.PanelsMonster
         private Panel CreatePanelObject(GameObject go)
         {
             GameObject panelGo = Instantiate(go);
+            panelGo.name = go.name;
             panelGo.transform.SetParent(this.transform, false);
             return this.InitPanelObject(panelGo);
         }
