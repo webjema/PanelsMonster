@@ -12,7 +12,6 @@ namespace com.webjema.PanelsMonster
     {
         none,
         text,
-        action,
         button
     }
 

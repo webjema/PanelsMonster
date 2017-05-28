@@ -59,7 +59,7 @@ namespace com.webjema.PanelsMonster
             this.PushScreen(screenName.ToString(), Option<IScreenArguments>.None);
         }
 
-        public void PushScreen(ScreensName screenName, Option<IScreenArguments> args)// where T : IScreenArguments
+        public void PushScreen(ScreensName screenName, Option<IScreenArguments> args)
         {
             this.PushScreen(screenName.ToString(), args);
         }
@@ -69,14 +69,14 @@ namespace com.webjema.PanelsMonster
             this.PushScreen(screenName, Option<IScreenArguments>.None);
         }
 
-        public void PushScreen(string screenName, Option<IScreenArguments> args)// where T : IScreenArguments
+        public void PushScreen(string screenName, Option<IScreenArguments> args)
         {
             this.PushArgumentsInStack(new ArgumentsStackItem<IScreenArguments>(screenName, args));
 
             this.LoadScreen(screenName);
         }
 
-        public void PopScreen(bool resetArgs = false)
+        public void PopScreen(bool resetArguments = false)
         {
             if (this._argumentsStack.Count < 2)
             {
@@ -88,7 +88,7 @@ namespace com.webjema.PanelsMonster
             this._argumentsStack.RemoveAt(this._argumentsStack.Count - 1);
             ArgumentsStackItem<IScreenArguments> args = this._argumentsStack[this._argumentsStack.Count - 1];
             this._argumentsStack.RemoveAt(this._argumentsStack.Count - 1);
-            if (resetArgs)
+            if (resetArguments)
             {
                 args.Arguments = Option<IScreenArguments>.None;
             }

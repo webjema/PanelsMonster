@@ -46,7 +46,7 @@ namespace com.webjema.PanelsMonster
         public Panel GetPanel(string name)
         {
 #if PANELS_DEBUG_ON
-            Debug.Log(string.Format("[PanelsManager][GetPanel] by name '{0}'", name));
+            Debug.Log(string.Format("[PanelsManager][GetPanel] by name '{0}' <<<<<<<<<<<<<", name));
 #endif
             if (!this.IsManagerInited())
             {

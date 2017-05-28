@@ -11,6 +11,7 @@ public enum PanelName
     BonusPanel,
     InfoPanel,
     SmallInfoPanel,
+    CustomInfoPanel,
 }
 
 public enum PanelPropertyName
@@ -28,7 +29,9 @@ public enum PanelActionName
     close,
     button1click,
     button2click,
-    button3click
+    button3click,
+
+    logout
 }
 
 public enum ScreensName

@@ -202,10 +202,10 @@ namespace com.webjema.PanelsMonster
 
         private void ScanResources()
         {
-            GameObject[] panels = Resources.LoadAll(this.panelsInResourcesFolder) as GameObject[];
-            if (panels != null && panels.Length > 0)
+            List<GameObject> panels = Resources.LoadAll(this.panelsInResourcesFolder, typeof(GameObject)).Cast<GameObject>().ToList();
+            if (panels != null && panels.Count > 0)
             {
-                this.panelsPrefabs.AddRange(panels.ToList());
+                this.panelsPrefabs.AddRange(panels);
             }
         } // ScanResources
 
