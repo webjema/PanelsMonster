@@ -1,10 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
 using com.webjema.Functional;
 using com.webjema.Infrastructure;
-using System.Linq;
 
 namespace com.webjema.PanelsMonster
 {
@@ -26,10 +28,25 @@ namespace com.webjema.PanelsMonster
             return this.GetPanel(name.ToString());
         }
 
+        public Exceptional<T> GetPanel<T>()
+        {
+            string name = typeof(T).ToString();
+            T panel;
+            try
+            {
+                panel = (T)Convert.ChangeType(this.GetPanel(name), typeof(T));
+            }
+            catch (InvalidCastException)
+            {
+                return Exceptional<T>.Raise(new UnityException("Error! Cannot convert popup [" + name + "] to " + typeof(T).ToString()));
+            }
+            return new Exceptional<T>(panel);
+        } // GetPanel<T>
+
         public Panel GetPanel(string name)
         {
 #if PANELS_DEBUG_ON
-            Debug.Log(string.Format("[PanelsManager][GetPanel] by name '{0}'", name));
+            Debug.Log(string.Format("[PanelsManager][GetPanel] by name '{0}' <<<<<<<<<<<<<", name));
 #endif
             if (!this.IsManagerInited())
             {
@@ -48,6 +65,7 @@ namespace com.webjema.PanelsMonster
 
         public void Show(Panel panel)
         {
+            panel.InitPanel();
             panel.gameObject.SetActive(true);
             if (panel.panelsHolder != null)
             {
@@ -55,7 +73,22 @@ namespace com.webjema.PanelsMonster
             } else
             {
 #if PANELS_DEBUG_ON
-                Debug.LogWarning(string.Format("[PanelsManager][GetPanel] No holder for panel '{0}' is found", name));
+                Debug.LogWarning(string.Format("[PanelsManager][Show] No holder for panel '{0}' is found", name));
+#endif
+            }
+        }
+
+        public void Close(Panel panel)
+        {
+            panel.gameObject.SetActive(false);
+            if (panel.panelsHolder != null)
+            {
+                panel.panelsHolder.OnPanelClose(panel);
+            }
+            else
+            {
+#if PANELS_DEBUG_ON
+                Debug.LogWarning(string.Format("[PanelsManager][Close] No holder for panel '{0}' is found", name));
 #endif
             }
         }
@@ -197,7 +230,7 @@ namespace com.webjema.PanelsMonster
         void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
 #if PANELS_DEBUG_ON
-            Debug.Log(string.Format("Scene Loaded - '{0}' (mode '{1}')", scene.name, mode));
+            Debug.Log(string.Format("[OnSceneLoaded] name = '{0}' (mode '{1}')", scene.name, mode));
 #endif
             this.ResetManager();
         }

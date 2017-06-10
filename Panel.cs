@@ -11,6 +11,8 @@ namespace com.webjema.PanelsMonster
     {
         public UnityEvent<Panel> onInit;
         public bool disableOnStart = true;
+        public bool enableBackground = true;
+        public bool closeOnBackgroundClick = true;
 
         public PanelsHolder panelsHolder;
         public List<PanelProperty> panelProperties;
@@ -19,7 +21,8 @@ namespace com.webjema.PanelsMonster
 
         public virtual void InitPanel()
         {
-            this.onInit.Invoke(this);
+            if (this.onInit != null)
+                this.onInit.Invoke(this);
         } // InitPanel
 
         public void OnStart()
@@ -30,10 +33,26 @@ namespace com.webjema.PanelsMonster
             }
         }
 
-        public void OnClick(string action)
+        public virtual void OnClick(string action)
         {
-
-        }
+            if (this.panelActions == null || this.panelActions.Count == 0)
+            {
+#if PANELS_DEBUG_ON
+                Debug.LogWarning("[Panel][OnClick] 'panelActions' is not inited!");
+#endif
+                return;
+            }
+            action = action.Trim().ToLowerInvariant();
+            PanelActionName actionName = panelActions.Keys.FirstOrDefault((a) => a.ToString() == action);
+            if (actionName == PanelActionName.none)
+            {
+#if PANELS_DEBUG_ON
+                Debug.LogWarning(string.Format("[Panel][OnClick] Action '{0}' is not found in 'panelActions'", action));
+#endif
+                return;
+            }
+            this.panelActions[actionName].Invoke();
+        } // OnClick
 
         public void Show()
         {
@@ -43,18 +62,36 @@ namespace com.webjema.PanelsMonster
             PanelsManager.Instance.Show(this);
         }
 
+        public void Close()
+        {
+#if PANELS_DEBUG_ON
+            Debug.Log(string.Format("[Panel][Close] '{0}'", this.gameObject.name));
+#endif
+            PanelsManager.Instance.Close(this);
+        }
+
         public Panel SetProperty(PanelPropertyName propertyName, System.Object data, PanelPropertyType propertyType = PanelPropertyType.none)
+        {
+            //Debug.Log(string.Format("[Panel][SetProperty] propertyName = '{0}' | this.panelProperties[0].propertyName = '{1}'", propertyName, this.panelProperties[0].propertyName));
+            PanelProperty pp = this.panelProperties.FirstOrDefault(p => p.propertyName == propertyName);
+            if (pp == null)
+            {
+                pp = this.AddProperty(propertyName, propertyType, data);
+            }
+            pp.ApplyData(data, propertyType);
+            return this;
+        } // SetProperty
+
+        public Panel SetNullProperty(PanelPropertyName propertyName)
         {
             PanelProperty pp = this.panelProperties.FirstOrDefault(p => p.propertyName == propertyName);
             if (pp == null)
             {
-                this.AddProperty(propertyName, propertyType, data);
-            } else
-            {
-                pp.ApplyData(data);
+                pp = this.AddProperty(propertyName, PanelPropertyType.none, null);
             }
+            pp.ApplyData(null, PanelPropertyType.none);
             return this;
-        } // SetProperty
+        } // SetNullProperty
 
         public Panel SetAction(PanelActionName actionName, Action act)
         {
@@ -70,24 +107,28 @@ namespace com.webjema.PanelsMonster
             return this;
         } // SetAction
 
-        public Panel Reset()
+        public virtual Panel Reset(bool resetProperties = false)
         {
-            this.panelProperties = new List<PanelProperty>();
+            if (resetProperties)
+            {
+                this.panelProperties = new List<PanelProperty>();
+            }
             this.panelActions = new Dictionary<PanelActionName, Action>();
             return this;
         }
 
 
 
-        private void AddProperty(PanelPropertyName propertyName, PanelPropertyType propertyType, System.Object data)
+        private PanelProperty AddProperty(PanelPropertyName propertyName, PanelPropertyType propertyType, System.Object data)
         {
-            this.panelProperties.Add(
-                new PanelProperty() {
-                    propertyName = propertyName,
-                    propertyType = propertyType,
-                    propertyData = data
-                }
-            );
+            PanelProperty property = new PanelProperty()
+            {
+                propertyName = propertyName,
+                propertyType = propertyType,
+                propertyData = data
+            };
+            this.panelProperties.Add(property);
+            return property;
         }
 
     } // Panel
