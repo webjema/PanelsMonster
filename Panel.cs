@@ -25,7 +25,7 @@ namespace com.webjema.PanelsMonster
                 this.onInit.Invoke(this);
         } // InitPanel
 
-        public void OnStart()
+        public virtual void OnStart()
         {
             if (this.disableOnStart)
             {

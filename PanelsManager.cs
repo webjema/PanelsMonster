@@ -99,37 +99,6 @@ namespace com.webjema.PanelsMonster
             this.Init();
         }
 
-        /*
-        public Option<T> GetPopup<T>(string name = "")
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                name = typeof(T).ToString();
-            }
-            if (!this._activePopupsList.ContainsKey(name))
-            {
-                // create Popup
-                this.AddPopup(name);
-            }
-            if (!this._activePopupsList.ContainsKey(name))
-            {
-                Logger.LogError("Error! Popup is not found by name [" + name + "]");
-                return Option.None<T>();
-            }
-            T pb;
-            try
-            {
-                pb = (T)Convert.ChangeType(this._activePopupsList[name], typeof(T));
-            }
-            catch (InvalidCastException)
-            {
-                Logger.LogError("Error! Cannot convert popup [" + name + "] to " + typeof(T).ToString());
-                return Option.None<T>();
-            }
-            return Option.Return<T>(pb);
-        } // GetPopup<T>
-        */
-
         private void InitPanelsHolders()
         {
             if (this.panelsHolders == null || this.panelsHolders.Count == 0)

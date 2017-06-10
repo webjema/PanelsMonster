@@ -76,7 +76,17 @@ namespace com.webjema.PanelsMonster
             this.LoadScreen(screenName);
         }
 
+        public void PopScreen(Option<IScreenArguments> args)
+        {
+            this.PopScreen(args, true);
+        }
+
         public void PopScreen(bool resetArguments = false)
+        {
+            this.PopScreen(Option<IScreenArguments>.None, resetArguments);
+        }
+
+        private void PopScreen(Option<IScreenArguments> newArguments, bool resetArguments)
         {
             if (this._argumentsStack.Count < 2)
             {
@@ -85,17 +95,18 @@ namespace com.webjema.PanelsMonster
 #endif                
                 return;
             }
+
             this._argumentsStack.RemoveAt(this._argumentsStack.Count - 1);
             ArgumentsStackItem<IScreenArguments> args = this._argumentsStack[this._argumentsStack.Count - 1];
             this._argumentsStack.RemoveAt(this._argumentsStack.Count - 1);
             if (resetArguments)
             {
-                args.Arguments = Option<IScreenArguments>.None;
+                args.Arguments = newArguments;
             }
             this.PushScreen(args.ScreenName, args.Arguments);
-        }
+        } // PopScreen
 
-        public void ScreenAwake(UIScreenManager screen, Option<IScreenArguments> defaultArgs)
+        public void ScreenAwake(UIScreenManager screen, Option<IScreenArguments> screenArgs)
         {
             this._currentScreen = screen;
 #if PANELS_DEBUG_ON
@@ -113,7 +124,6 @@ namespace com.webjema.PanelsMonster
             }
             if (screen.backgroundScreen != ScreensName.None)
             {
-                Debug.LogWarning("this._currentBackgroundScene = " + this._currentBackgroundScene + " | screen.backgroundScreen = " + screen.backgroundScreen);
                 if (this._currentBackgroundScene != ScreensName.None && this._currentBackgroundScene != screen.backgroundScreen)
                 {
                     // remove old background
@@ -137,11 +147,11 @@ namespace com.webjema.PanelsMonster
 
             if (this._argumentsStack.Count == 0)
             {
-                this.PushArgumentsInStack(new ArgumentsStackItem<IScreenArguments>(screen.gameObject.scene.name, defaultArgs));
+                this.PushArgumentsInStack(new ArgumentsStackItem<IScreenArguments>(screen.gameObject.scene.name, screenArgs));
             }
-            if (this.CurrentScreenArguments.IsNone && defaultArgs.IsSome)
+            if (this.CurrentScreenArguments.IsNone && screenArgs.IsSome)
             {
-                this.CurrentScreenArguments = defaultArgs;
+                this.CurrentScreenArguments = screenArgs;
             }
         } // ScreenAwake
 
