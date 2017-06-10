@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace com.webjema.Infrastructure
+namespace com.webjema.PanelsMonster
 {
 
     public class SingletonAsComponent<T> : MonoBehaviour where T : SingletonAsComponent<T>

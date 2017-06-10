@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace com.webjema.PanelsMonster
 {
@@ -68,7 +66,7 @@ namespace com.webjema.PanelsMonster
             get
             {
 #if UNITY_CLOUD_BUILD
-            return true;
+                return true;
 #else
                 return false;
 #endif
@@ -80,7 +78,7 @@ namespace com.webjema.PanelsMonster
             get
             {
 #if ENABLE_DEV_BUILD
-            return true;
+                return true;
 #endif
                 if (Debug.isDebugBuild || Application.isEditor)
                 {
@@ -95,7 +93,7 @@ namespace com.webjema.PanelsMonster
             get
             {
 #if UNITY_ANDROID
-            return true;
+                return true;
 #else
                 return false;
 #endif
@@ -107,7 +105,7 @@ namespace com.webjema.PanelsMonster
             get
             {
 #if UNITY_IOS
-            return true;
+                return true;
 #else
                 return false;
 #endif
