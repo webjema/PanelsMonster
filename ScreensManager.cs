@@ -90,6 +90,31 @@ namespace com.webjema.PanelsMonster
             this.LoadScreen(screenName);
         }
 
+
+        public void SetScreen(ScreensName screenName)
+        {
+            this.SetScreen(screenName.ToString(), Option<IScreenArguments>.None);
+        }
+
+        public void SetScreen(ScreensName screenName, Option<IScreenArguments> args)
+        {
+            this.SetScreen(screenName.ToString(), args);
+        }
+
+        public void SetScreen(string screenName)
+        {
+            this.SetScreen(screenName, Option<IScreenArguments>.None);
+        }
+
+        public void SetScreen(string screenName, Option<IScreenArguments> args)
+        {
+            this._argumentsStack.RemoveAt(this._argumentsStack.Count - 1);
+            this.PushArgumentsInStack(new ArgumentsStackItem<IScreenArguments>(screenName, args));
+
+            this.LoadScreen(screenName);
+        }
+
+
         public void PopScreen(Option<IScreenArguments> args)
         {
             this.PopScreen(args, true);
